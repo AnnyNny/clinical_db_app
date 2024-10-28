@@ -31,26 +31,38 @@ def get_unique_values(table_name, column_name):
         print(f"Error fetching unique values for {column_name}: {e}")
         return []
 
+
+# database_utils.py
 def get_groupable_fields(table_name):
     """Determine groupable fields based on the data type."""
+    # Split schema and table name if the table includes schema (e.g., matteo_tef.tep_divided_results)
+    if "." in table_name:
+        schema, table = table_name.split(".")
+    else:
+        schema, table = None, table_name
+
     query = f"""
     SELECT column_name, data_type
     FROM information_schema.columns
-    WHERE table_name = '{table_name}'
+    WHERE table_name = '{table}'
     """
+
+    if schema:
+        query += f" AND table_schema = '{schema}'"
+
+    # Execute the query and fetch results
     results = execute_query(query)
 
     groupable_fields = []
     for column_name, data_type in results:
-        # Categorical fields
-        if data_type in ["varchar", "text", "boolean"]:
+        # Only consider columns suitable for grouping
+        if data_type in ["varchar", "text", "boolean", "integer", "bigint"]:
             groupable_fields.append(column_name)
 
-        # Timestamp fields grouped by hour
-        elif data_type == "timestamptz":
+        # Handle timestamp fields to allow grouping by hour
+        elif data_type == "timestamp with time zone" or data_type == "timestamptz":
             groupable_fields.append(f"EXTRACT(HOUR FROM {column_name}) AS {column_name}_hour")
 
-        # Optional: Numeric fields (only if you want to allow binning)
-        elif data_type in ["int4", "int8", "bigint", "numeric", "float8"]:
-            groupable_fields.append(column_name)  # Consider binning if included
+    # Debugging to verify what fields are detected as groupable
+    print("Groupable fields:", groupable_fields)
     return groupable_fields
