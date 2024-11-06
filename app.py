@@ -38,29 +38,21 @@ filters.update(add_general_filters())        # General filters
 
 # Build and execute the main query
 conditions, params, selected_event = build_query(filters)
-query = f"SELECT * FROM {TABLE_NAME}"
-if conditions:
-    query += " WHERE " + " AND ".join(conditions)
-
-st.write("Executing main query:", query)
-st.write("With parameters:", params)
-
-# Execute and display the main query results
-try:
-    results = execute_query(query, params)
-    if results:
-        st.dataframe(results)
-    else:
-        st.warning("No results match the selected filters.")
-except Exception as e:
-    st.error(f"Error fetching data: {e}")
 
 # Dynamic Grouping and Visualization Section
 st.sidebar.write("### Dynamic Trend Analysis")
+# Checkbox to enable optional binning
+enable_binning = st.sidebar.checkbox("Enable Binning for Numeric Fields")
 groupable_fields = get_groupable_fields(TABLE_NAME)
 if groupable_fields:
-    selected_groups = st.sidebar.multiselect("Choose up to 2 fields to group by:", groupable_fields, max_selections=2)
-    if selected_groups:
+    selected_groups = st.sidebar.multiselect("Choose up to 2 fields to group by:", groupable_fields, max_selections=4)
+    """if selected_groups:
         dynamic_trend_analysis(selected_groups, conditions, params, selected_event)
 else:
-    st.sidebar.write("No groupable fields available in the database.")
+    st.sidebar.write("No groupable fields available in the database.")"""
+    # Dynamic Trend Analysis with binning option
+    if selected_groups:
+        with st.spinner("Generating your plot... This may take a few moments."):
+            dynamic_trend_analysis(selected_groups, conditions, params, selected_event, enable_binning)
+    else:
+        st.sidebar.write("No groupable fields available in the database.")

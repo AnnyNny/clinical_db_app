@@ -1,7 +1,9 @@
 # database_utils.py
 import psycopg2
 from config import DB_CONFIG
+import streamlit as st
 
+@st.cache_data(show_spinner=False)
 def execute_query(query, params=()):
     with psycopg2.connect(**DB_CONFIG) as conn:
         cursor = conn.cursor()
@@ -10,8 +12,8 @@ def execute_query(query, params=()):
         return results
 
 def get_min_max_values(table_name, column_name):
-    """Fetches the minimum and maximum values for a specific column."""
-    query = f"SELECT MIN({column_name}), MAX({column_name}) FROM {table_name}"
+    """Fetches the minimum and maximum values for a specific column from the materialized view."""
+    query = f"SELECT min_value, max_value FROM matteo_tef.min_max_view WHERE column_name = '{column_name}'"
     try:
         result = execute_query(query)
         min_val, max_val = result[0]
@@ -22,7 +24,7 @@ def get_min_max_values(table_name, column_name):
 
 def get_unique_values(table_name, column_name):
     """Fetches unique values for a specific column."""
-    query = f"SELECT DISTINCT {column_name} FROM {table_name} ORDER BY {column_name}"
+    query = f"SELECT DISTINCT INITCAP (LOWER({column_name})) AS event_normalized FROM {table_name} ORDER BY event_normalized"
     try:
         results = execute_query(query)
         unique_values = [row[0] for row in results]
@@ -56,13 +58,21 @@ def get_groupable_fields(table_name):
     groupable_fields = []
     for column_name, data_type in results:
         # Only consider columns suitable for grouping
-        if data_type in ["varchar", "text", "boolean", "integer", "bigint"]:
+        if data_type in ["varchar", "text", "boolean", "integer", "bigint", "numeric", "character varying"]:
             groupable_fields.append(column_name)
 
         # Handle timestamp fields to allow grouping by hour
         elif data_type == "timestamp with time zone" or data_type == "timestamptz":
-            groupable_fields.append(f"EXTRACT(HOUR FROM {column_name}) AS {column_name}_hour")
+            groupable_fields.append(f"EXTRACT(HOUR FROM {column_name})")
+        """elif data_type == "timestamp with time zone" or data_type == "timestamptz":
+            groupable_fields.append(f" {column_name} ")"""
+            #groupable_fields.append(f" {column_name} HOUR")
 
     # Debugging to verify what fields are detected as groupable
     print("Groupable fields:", groupable_fields)
     return groupable_fields
+
+
+def add_binning_to_query(column, bin_size=5):
+    """Создаёт SQL выражение для бинирования числового столбца."""
+    return f"FLOOR({column} / {bin_size}) * {bin_size} AS {column}_binned"

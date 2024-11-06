@@ -9,7 +9,7 @@ def add_trend_filters():
     }
 
     filters = {}
-    with st.sidebar.expander("Trend Parameters", expanded=True):
+    with st.sidebar.expander("Trend Parameters", expanded=False):
         for field in trend_parameters:
             filters[field] = st.selectbox(f"Filter by {field}", options=["", "INCREASING", "DECREASING", "STEADY"],
                                           index=0)

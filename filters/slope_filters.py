@@ -10,9 +10,9 @@ def add_slope_filters():
     }
 
     filters = {}
-    with st.sidebar.expander("Slope Parameters", expanded=True):
+    with st.sidebar.expander("Slope Parameters", expanded=False):
         for field, datatype in slope_parameters.items():
-            enabled = st.checkbox(f"Enable filter for {field}", value=False)
+            enabled = st.checkbox(f"{field}", value=False)
             if enabled:
                 filters[field] = st.number_input(f"Filter by {field}", value=0.0, step=0.1)
             else:

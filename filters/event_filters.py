@@ -15,10 +15,10 @@ def add_event_filters():
     }
 
     filters = {}
-    with st.sidebar.expander("Event-Related Parameters", expanded=True):
+    with st.sidebar.expander("Event-Related Parameters", expanded=False):
         for field, datatype in event_related.items():
             # Checkbox to enable or disable the filter
-            enabled = st.checkbox(f"Enable filter for {field}", value=False)
+            enabled = st.checkbox(f" {field}", value=False)
             if enabled:
                 if datatype == "varchar":
                     # Retrieve unique values for varchar fields and use a selectbox

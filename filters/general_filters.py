@@ -17,7 +17,7 @@ def add_general_filters():
     }
 
     filters = {}
-    with st.sidebar.expander("General Parameters", expanded=True):
+    with st.sidebar.expander("General Parameters", expanded=False):
         for field, datatype in general.items():
             # Only apply min and max for numeric fields
             if datatype in ["numeric", "int4", "int8", "float8", "bigint"]:
@@ -34,7 +34,7 @@ def add_general_filters():
 
                     # If min_val equals max_val, display a single-value filter
                     if min_val == max_val:
-                        enabled = st.checkbox(f"Enable filter for {field}", value=False)
+                        enabled = st.checkbox(f" {field}", value=False)
                         if enabled:
                             st.write(f"{field} has a fixed value of {min_val}. No range available.")
                             filters[field] = min_val  # Store the single value
@@ -54,7 +54,7 @@ def add_general_filters():
                         default_range = (min_val, max_val)
 
                 # Checkbox to enable or disable the filter
-                enabled = st.checkbox(f"Enable filter for {field}", value=False)
+                enabled = st.checkbox(f" {field}", value=False)
                 if enabled:
                     # Range slider with appropriate integer or float type
                     selected_range = st.slider(
@@ -70,7 +70,7 @@ def add_general_filters():
 
             else:
                 # For non-numeric fields, use a standard input without range selection
-                enabled = st.checkbox(f"Enable filter for {field}", value=False)
+                enabled = st.checkbox(f" {field}", value=False)
                 if enabled:
                     filters[field] = st.text_input(f"Filter by {field}")
                 else:
