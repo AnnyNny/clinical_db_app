@@ -1,7 +1,7 @@
 group_by_filters = [
-    {"column_name": "trend_pre", "description": "Type of trend before event"},
+    {"column_name": "trend_pre", "description": "Type of pre-trend"},
     {"column_name": "event", "description": "Event"},
-    {"column_name": "trend_post", "description": "Type of trend after event"},
+    {"column_name": "trend_post", "description": "Type of post-trend"},
     {"column_name": "vt_start_pre", "description": "Start of trend before event (time of P1)"},
     {"column_name": "vt_end_pre", "description": "End of trend before event (time of P2)"},
     {"column_name": "vt", "description": "Event timestamp"},

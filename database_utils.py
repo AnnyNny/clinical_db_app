@@ -3,9 +3,8 @@ import psycopg2
 import pandas as pd
 from streamlit import cache_data
 import polars as pl
-
 from config import DB_CONFIG, MIN_MAX_VIEW, TABLE_NAME
-import streamlit as st
+
 
 @cache_data
 def execute_query(query, params=()):
@@ -48,41 +47,3 @@ def get_unique_values(table_name, column_name):
     except Exception as e:
         print(f"Error fetching unique values for {column_name}: {e}")
         return []
-
-"""def get_groupable_fields():
-    # Split schema and table name
-    if "." in TABLE_NAME:
-        schema, table = TABLE_NAME.split(".")
-    else:
-        schema, table = None, TABLE_NAME
-
-    query = f
-    SELECT column_name, data_type
-    FROM information_schema.columns
-    WHERE table_name = '{table}' 
-    
-
-    if schema:
-        query += f" AND table_schema = '{schema}'"
-
-    # Execute the query and fetch results
-    results = execute_query(query)
-    groupable_fields = []
-    for column_name, data_type in results:
-        if data_type == "timestamp with time zone" or data_type == "timestamptz":
-            groupable_fields.append(f"EXTRACT(HOUR FROM {column_name})")
-            groupable_fields.append(f"EXTRACT(MONTH FROM {column_name})")
-        else:
-            groupable_fields.append(column_name)
-
-    print("Groupable fields:", groupable_fields)
-    return groupable_fields"""
-
-
-def count_unique_combinations(data, columns=None):
-    if columns is None:
-        columns = data.columns.tolist()
-    unique_combinations = data[columns].drop_duplicates()
-    count = len(unique_combinations)
-    st.write(f"Number of unique combinations for columns {columns}: {count}")
-    return count
