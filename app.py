@@ -1,24 +1,30 @@
+import time
 import streamlit as st
-from database_utils import execute_query, execute_final_query, count_unique_combinations
+from database_utils import execute_query, execute_final_query
 from filters.time_filters import add_time_filters
 from filters.trend_filters import add_trend_filters
 from filters.slope_filters import add_slope_filters
 from filters.duration_gap_filters import add_duration_gap_filters
 from filters.event_filters import add_event_filters
 from filters.general_filters import add_general_filters
-from query_builder import build_where_clause, build_final_query, build_final_query_extract_hour, \
-    build_final_query_extract_hour1, build_final_query1
-from vis_with_polars import plot_result_with_binning_polars
-from visualization import dynamic_trend_analysis, plot_result_with_binning, plot_result_with_binning1
+from query_builder import build_where_clause, build_final_query
+from vis_with_polars import plot_result_with_binning_polars, apply_binning_to_decimal_p_value_columns
 from group_by_filters import group_by_filters as gr
-from streamlit_sortables import sort_items
 
 st.set_page_config(page_title="Trend-Event Pattern Analysis", layout="wide")
+st.markdown("""
+    <style>
+    /* Hide the Streamlit header and menu */
+    header {visibility: hidden;}
+    .stApp {margin-top: -50px;} /* Adjusts layout after hiding header */
+    </style>
+    """, unsafe_allow_html=True)
 st.markdown( """ <style> .stDeployButton {display: none;} [data-testid="stStatusWidget"] {visibility: hidden;} </style> """, unsafe_allow_html=True)
 st.title("Clinical Database Application")
 
 if "reordered_columns" not in st.session_state:
     st.session_state["reordered_columns"] = None
+
 try:
     results = execute_query("SELECT NOW();")
     st.success(f"Database connected. Current time: {results[0][0]}")
@@ -47,7 +53,7 @@ group_by_filters = st.sidebar.multiselect(
     "Choose how to group your data:",
     options=gr,
     format_func=lambda f: f["description"],
-    default=None
+    default=[g for g in gr if g["column_name"] in ["trend_pre", "trend_post", "p1_value"]]
 )
 
 st.sidebar.write("Selected groups:")
@@ -68,127 +74,52 @@ for selected_filter in order_by_filters:
 selected_group_columns = [f["column_name"] for f in group_by_filters]
 selected_order_columns = [f["column_name"] for f in order_by_filters]
 
-#if st.sidebar.button("Create final query:"):
-    #final_query = build_final_query(where_query, selected_group_columns, selected_order_columns)
-    #st.write("Final query 1", final_query)
-    #final_query2 = build_final_query_extract_hour(where_query, selected_group_columns, selected_order_columns)
-    #st.write("Final query 2", final_query2)
-time_slice = st.selectbox("**choose time slice:**", options=[None, "hour", "month", "year"])
-top_n = st.number_input("**choose how many most important counts you want (top_n)**", min_value=1, max_value=100, value=30, step=1)
-max_bins = st.number_input("**choose how many bins you want (max_bins)**", min_value=1, max_value=25, step=1, value=10, placeholder="leave empty if you dont want any bins")
+
+time_slice = st.selectbox("**Choose time slice: (must always be chosen)\***", options=[None, "hour", "month", "year"])
+if not time_slice:
+    st.error("No time slice selected")
+top_n = st.number_input(
+    "**Choose how many most important counts you want (top_n). Important: top may be smaller than n than you expect if there is not enough unique combinations of groups**",
+    min_value=1,
+    max_value=1000,
+    value=30,
+    step=1,
+    help="Will choose most popular n combinations"
+)
+max_bins = st.number_input(
+    "**Choose how many bins you want (vital parameters of P1, P2, P3, P4 will be divided by n intervals. 0 bins if you want to see each value separately. Recommended for optimization purposes: 10 bins)**",
+    min_value=0,
+    max_value=25,
+    value=10,
+    step=1,
+    help="Set to 0 if you don't want any binning."
+)
+my_bar = st.progress(0, text="Executing query and plotting may take 2-3 minutes. Please wait after clicking 'Visualize plot' button")
 if st.button("Visualize plot"):
     final_query = build_final_query(where_query, selected_group_columns, selected_order_columns)
     if time_slice is not None:
         try:
             data = execute_final_query(final_query, params)
             if not data.is_empty():
-                st.write("Query was executed")
-                plot_result_with_binning_polars(data, time_slice=time_slice, top_n=top_n, max_bins=max_bins)
-                print("outside of plot result with binning")
+                #st.write("DEBUGGING Query was executed")
+                for percent_complete in range(100):
+                    time.sleep(0.01)
+                    my_bar.progress(percent_complete + 1)
+                time.sleep(1)
+                unbinned_data = data.clone()
+                binned_data = apply_binning_to_decimal_p_value_columns(data, max_bins)
+
+                st.subheader("Non-Binned Data View")
+                plot_result_with_binning_polars(unbinned_data, top_n=top_n, max_bins=max_bins,time_slice=time_slice)
+                st.divider()
+                st.subheader("Binned Data View")
+                plot_result_with_binning_polars(binned_data, top_n=top_n, max_bins=max_bins, time_slice=time_slice)
+
+                #print("DEBUGGIN outside of plot result with binning")
             else:
-                st.write("Query was not executed")
+                st.warning("<b> There is no such data. Try to change filter parameters <b>")
         except Exception as e:
             st.write("Query was not executed because of the error: ", e)
     else:
         st.write("Problem with time slice choosing")
 
-#st.write("Final query (after rerunning) is:", st.session_state.final_query1,
-         #"\n\n\nother variant of query: ",st.session_state.final_query2)
-
-"""if st.sidebar.button("Execute final query1:"):
-    with st.spinner(text="Executing, wait 2-3 minutes..."):
-        final_query = build_final_query(where_query, selected_group_columns, selected_order_columns)
-        st.session_state.final_result1 = execute_final_query(final_query, params)
-if st.sidebar.button("Execute final query2:"):
-    with st.spinner(text="Executing, wait 2-3 minutes..."):
-        st.session_state.final_result2 = execute_final_query(st.session_state.final_query2, params)
-
-if st.session_state.final_result1 is not None:
-    st.write("Final query", st.session_state.final_query1, "executed successfully.")
-
-if st.session_state.final_result1 is not None:
-    st.write("Final query", st.session_state.final_query2, "executed successfully.")"""
-
-#if st.sidebar.button("Visualize plot"):
-    #plot_result_with_binning1(st.session_state.final_result2)
-"""group_by_filters = st.sidebar.multiselect(
-    "Choose fields to group by:",
-    options=filters,
-    format_func=lambda f: f["description"] + (" " + f["granularity"] if "granularity" in f else ""),
-    default=None
-)
-selected_group_by_columns = [
-    {"column_name": g["column_name"], "granularity": g.get("granularity")}
-    for g in group_by_filters
-]
-st.sidebar.write("Selected fields to group by:")
-for selected_filter in group_by_filters:
-    st.sidebar.write(f"- {selected_filter['description']} ({selected_filter.get('granularity', 'No granularity specified')})")
-
-order_by_filters = st.sidebar.multiselect(
-    "Choose order in which we will group:",
-    options=group_by_filters,
-    format_func=lambda f: f["description"] + (" " + f["granularity"] if "granularity" in f else ""),
-    default=None
-)
-#selected_order_by_columns = [o["column_name"] for o in order_by_filters]
-selected_order_by_columns = [
-    {"column_name": o["column_name"], "granularity": o.get("granularity")}
-    for o in order_by_filters
-]
-with st.spinner("Wait 2-3 minutes for catching result from the table"):
-    if st.sidebar.button("Build query that is processed in sql (dynamically extracts chosen granularity and bins p1-p4)"):
-        st.session_state.final_query[0] = build_final_query_extract_hour1(where_query, selected_group_by_columns, selected_order_by_columns)
-        st.write("Query 1 (sql processed):", st.session_state.final_query[0])
-    # problem with this query is that if user chooses when grouping e.g. pre_trend in month and pre_trend in hour, it is not reflected in query
-    if st.sidebar.button("Build simple query that will be processed with pandas later"):
-        st.session_state.final_query[1] = build_final_query1(where_query, selected_group_by_columns, selected_order_by_columns)
-        st.write("Query 2 (simple):", st.session_state.final_query[1])
-    if st.session_state.final_query[0] is not None:
-        if st.sidebar.button("execute Query 1: SQL processed"):
-            st.session_state.final_result[0] = execute_final_query(st.session_state.final_query[0], params)
-            if st.session_state.final_result[0] is not None:
-                st.write("caught results of query 1")
-                unique_combinations = count_unique_combinations(st.session_state.final_result[0])
-                st.write("Count of unique combinations: ", unique_combinations)
-
-    if st.session_state.final_query[1] is not None:
-        if st.sidebar.button("execute Query 2: Simple query (will be Pandas processed)"):
-            st.session_state.final_result[1] = execute_final_query(st.session_state.final_query[1], params)
-            if st.session_state.final_result[1] is not None:
-                st.write("caught results of query 2")
-                unique_combinations = count_unique_combinations(st.session_state.final_result[1])
-                st.write("Count of unique combinations: ", unique_combinations)
-
-
-st.sidebar.write("### Dynamic Trend Analysis")
-#enable_binning = st.sidebar.checkbox("Enable Binning for Numeric Fields")
-#if enable_binning:
-    #num_bins = st.sidebar.slider("Number of bins", 1, 100, 10)
-    #st.session_state.num_bins = num_bins
-
-if st.sidebar.button("Calculate combinations with query sql"):
-    plot_result_with_binning(st.session_state.final_result[0])
-
-if st.sidebar.button("Calculate combinations with query (pandas will process)"):
-    plot_result_with_binning(st.session_state.final_result[1])"""
-
-"""# Dynamic Grouping and Visualization Section
-st.sidebar.write("### Dynamic Trend Analysis")
-# Checkbox to enable optional binning
-#enable_binning = st.sidebar.checkbox("Enable Binning for Numeric Fields")
-groupable_fields = filters.keys()
-if groupable_fields:
-    selected_groups = st.sidebar.multiselect("Choose fields to group by:", groupable_fields, max_selections=4)
-    with st.sidebar.expander("ℹ️ ***Hint: Is the order of how I group important?***"):
-        st.write(
-            "The order in which you select fields to group by can change the visualization. " 
-            "\n\nExperiment with different order to see how it changes the analysis."
-        )
-    order_by = st.sidebar.selectbox("Order by", [it for it in selected_groups])
-    # Dynamic Trend Analysis with binning option
-    if selected_groups:
-        with st.spinner("Generating your plot... This may take a few moments."):
-            dynamic_trend_analysis(selected_groups, conditions, params, selected_event, enable_binning=False)
-    else:
-        st.sidebar.write("No groupable fields selected yet.")"""
