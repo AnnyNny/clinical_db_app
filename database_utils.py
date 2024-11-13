@@ -1,9 +1,13 @@
 # database_utils.py
 import psycopg2
-from config import DB_CONFIG
+import pandas as pd
+from streamlit import cache_data
+import polars as pl
+
+from config import DB_CONFIG, MIN_MAX_VIEW, TABLE_NAME
 import streamlit as st
 
-@st.cache_data(show_spinner=False)
+@cache_data
 def execute_query(query, params=()):
     with psycopg2.connect(**DB_CONFIG) as conn:
         cursor = conn.cursor()
@@ -11,9 +15,21 @@ def execute_query(query, params=()):
         results = cursor.fetchall()
         return results
 
+@cache_data
+def execute_final_query(query, params=()):
+    with psycopg2.connect(**DB_CONFIG) as conn:
+        with conn.cursor() as cursor:
+            cursor.execute(query, params)
+            column_names = [desc[0] for desc in cursor.description]
+            list_of_tuples = cursor.fetchall()
+            #df = pd.DataFrame(list_of_tuples, columns=column_names)
+            df = pl.DataFrame(list_of_tuples, schema=column_names)
+        return df
+
+@cache_data
 def get_min_max_values(table_name, column_name):
-    """Fetches the minimum and maximum values for a specific column from the materialized view."""
-    query = f"SELECT min_value, max_value FROM matteo_tef.min_max_view WHERE column_name = '{column_name}'"
+    """Fetch min and max values for a filter."""
+    query = f"SELECT min_value, max_value FROM {MIN_MAX_VIEW} WHERE column_name = '{column_name}'"
     try:
         result = execute_query(query)
         min_val, max_val = result[0]
@@ -22,9 +38,9 @@ def get_min_max_values(table_name, column_name):
         print(f"Error fetching min/max for {column_name}: {e}")
         return None, None
 
+@cache_data
 def get_unique_values(table_name, column_name):
-    """Fetches unique values for a specific column."""
-    query = f"SELECT DISTINCT INITCAP (LOWER({column_name})) AS event_normalized FROM {table_name} ORDER BY event_normalized"
+    query = f"SELECT DISTINCT (LOWER({column_name})) AS event_lowcase FROM {TABLE_NAME} ORDER BY event_lowcase"
     try:
         results = execute_query(query)
         unique_values = [row[0] for row in results]
@@ -33,46 +49,40 @@ def get_unique_values(table_name, column_name):
         print(f"Error fetching unique values for {column_name}: {e}")
         return []
 
-
-# database_utils.py
-def get_groupable_fields(table_name):
-    """Determine groupable fields based on the data type."""
-    # Split schema and table name if the table includes schema (e.g., matteo_tef.tep_divided_results)
-    if "." in table_name:
-        schema, table = table_name.split(".")
+"""def get_groupable_fields():
+    # Split schema and table name
+    if "." in TABLE_NAME:
+        schema, table = TABLE_NAME.split(".")
     else:
-        schema, table = None, table_name
+        schema, table = None, TABLE_NAME
 
-    query = f"""
+    query = f
     SELECT column_name, data_type
     FROM information_schema.columns
-    WHERE table_name = '{table}'
-    """
+    WHERE table_name = '{table}' 
+    
 
     if schema:
         query += f" AND table_schema = '{schema}'"
 
     # Execute the query and fetch results
     results = execute_query(query)
-
     groupable_fields = []
     for column_name, data_type in results:
-        # Only consider columns suitable for grouping
-        if data_type in ["varchar", "text", "boolean", "integer", "bigint", "numeric", "character varying"]:
+        if data_type == "timestamp with time zone" or data_type == "timestamptz":
+            groupable_fields.append(f"EXTRACT(HOUR FROM {column_name})")
+            groupable_fields.append(f"EXTRACT(MONTH FROM {column_name})")
+        else:
             groupable_fields.append(column_name)
 
-        # Handle timestamp fields to allow grouping by hour
-        elif data_type == "timestamp with time zone" or data_type == "timestamptz":
-            groupable_fields.append(f"EXTRACT(HOUR FROM {column_name})")
-        """elif data_type == "timestamp with time zone" or data_type == "timestamptz":
-            groupable_fields.append(f" {column_name} ")"""
-            #groupable_fields.append(f" {column_name} HOUR")
-
-    # Debugging to verify what fields are detected as groupable
     print("Groupable fields:", groupable_fields)
-    return groupable_fields
+    return groupable_fields"""
 
 
-def add_binning_to_query(column, bin_size=5):
-    """Создаёт SQL выражение для бинирования числового столбца."""
-    return f"FLOOR({column} / {bin_size}) * {bin_size} AS {column}_binned"
+def count_unique_combinations(data, columns=None):
+    if columns is None:
+        columns = data.columns.tolist()
+    unique_combinations = data[columns].drop_duplicates()
+    count = len(unique_combinations)
+    st.write(f"Number of unique combinations for columns {columns}: {count}")
+    return count

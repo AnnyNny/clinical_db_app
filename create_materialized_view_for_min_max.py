@@ -1,4 +1,6 @@
-"""CREATE MATERIALIZED VIEW matteo_tef.min_max_view AS
+"""This is created to decide sliders' range for different filters for optimizing purposes
+
+CREATE MATERIALIZED VIEW matteo_tef.min_max_view AS
 SELECT
     'id' AS column_name,
     MIN(id) AS min_value,

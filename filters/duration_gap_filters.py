@@ -1,12 +1,60 @@
-# filters/duration_gap_filters.py
+
 import streamlit as st
 from database_utils import get_min_max_values
 from config import TABLE_NAME
 
+duration_constraints = [
+    {"column_name" : "duration_pre",
+     "description" : "Duration of trend before event",
+     "filter_group" : "duration_constraints",
+     "value": None,
+     "min_value" : None,
+     "max_value" : None,
+     "type": "numeric"},
+{"column_name" : "duration_post",
+     "description" : "Duration of trend after event",
+     "filter_group" : "duration_constraints",
+     "value": None,
+ "min_value": None,
+ "max_value": None,
+ "type": "numeric"
+ },
+{"column_name" : "gap_pre",
+     "description" : "p2_value - p1_value (gap_pre)",
+     "filter_group" : "duration_constraints",
+     "value": None,
+ "min_value": None,
+ "max_value": None,
+ "type": "numeric"
+ },
+{"column_name" : "gap_post",
+     "description" : "p4_value - p3_value (gap_post)",
+     "filter_group" : "duration_constraints",
+     "value": None,
+ "min_value": None,
+ "max_value": None,
+ "type": "numeric"
+ },
+{"column_name" : "maxdurationtime",
+     "description" : "Max Duration Time",
+     "filter_group" : "duration_constraints",
+     "value": None,
+ "min_value": None,
+ "max_value": None,
+ "type": "int4"
+ },
+{"column_name" : "max_steady_percentage",
+     "description" : "Max Steady Percentage",
+     "filter_group" : "duration_constraints",
+     "value": None,
+ "min_value": None,
+ "max_value": None,
+ "type": "int4"
+ },
 
-def add_duration_gap_filters():
-    """Add filters for duration and gap-related fields."""
-    duration_and_gaps = {
+]
+
+"""duration_and_gaps = {
         "duration_pre": "numeric",
         "duration_post": "numeric",
         "gap_pre": "numeric",
@@ -14,59 +62,31 @@ def add_duration_gap_filters():
         "maxdurationtime": "int4",
         "maxdeltastart": "int4",
         "max_steady_percentage": "numeric"
-    }
+    }"""
 
-    filters = {}
+def add_duration_gap_filters():
+
     with st.sidebar.expander("Duration and Gaps", expanded=False):
-        for field, datatype in duration_and_gaps.items():
-            # Only apply min and max for numeric fields
-            if datatype in ["numeric", "int4", "int8", "float8"]:
-                # Fetch min and max values from the database
-                min_val, max_val = get_min_max_values(TABLE_NAME, field)
+        for i, constraint in enumerate(duration_constraints):
+            enabled = st.checkbox(f" {constraint["description"]}", value=False, key=f"{constraint['column_name']}_checkbox_{i}")
+            min_val, max_val = get_min_max_values(TABLE_NAME, constraint["column_name"])
+            if min_val is not None and max_val is not None:
+                constraint["min_value"] = min_val
+                constraint["max_value"] = max_val
+                if min_val == max_val:
+                    if enabled:
+                        st.write(f"{constraint["description"]} has a fixed value of {min_val}. No range available.")
 
-                # Ensure min_val is less than max_val
-                if min_val is not None and max_val is not None:
-                    min_val, max_val = float(min_val), float(max_val)
-                    if min_val > max_val:
-                        min_val, max_val = max_val, min_val  # Swap values if min > max
-
-                    # If min_val equals max_val, display a single-value filter
-                    if min_val == max_val:
-                        enabled = st.checkbox(f" {field}", value=False)
-                        if enabled:
-                            st.write(f"{field} has a fixed value of {min_val}. No range available.")
-                            filters[field] = min_val  # Store the single value
-                        else:
-                            filters[field] = None
-                        continue  # Skip to the next field
-
-                    # Set the default range for sliders
-                    default_range = (min_val, max_val)
-                else:
-                    # Fallback values if min/max are not available
-                    min_val, max_val = 0.0, 100.0
-                    default_range = (min_val, max_val)
-
-                # Checkbox to enable or disable the filter
-                enabled = st.checkbox(f"{field}", value=False)
+                default_range = (int(min_val), int(max_val))
                 if enabled:
-                    # Range slider for numeric range selection
                     selected_range = st.slider(
-                        f"Filter by {field} range",
-                        min_value=min_val,
-                        max_value=max_val,
-                        value=default_range
+                        f"Filter by {constraint["description"]} range",
+                        min_value=int(min_val),
+                        max_value=int(max_val),
+                        value=default_range,
+                        key=f"{constraint['column_name']}_slider_{i}"
                     )
-                    filters[field] = selected_range  # Store as a tuple (min, max)
+                    constraint["value"] = selected_range
                 else:
-                    filters[field] = None  # Set to None if not enabled
-
-            else:
-                # For non-numeric fields, use a standard input without range selection
-                enabled = st.checkbox(f"{field}", value=False)
-                if enabled:
-                    filters[field] = st.text_input(f"Filter by {field}")
-                else:
-                    filters[field] = None  # Set to None if not enabled
-
-    return filters
+                    constraint["value"] = None
+    return duration_constraints

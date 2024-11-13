@@ -2,10 +2,9 @@
 from dotenv import load_dotenv
 import os
 
-# Load environment variables from .env file
+# Load variables from .env
 load_dotenv()
 
-# Database configuration
 DB_CONFIG = {
     'host': os.getenv('DB_HOST'),
     'user': os.getenv('DB_USER'),
@@ -14,7 +13,4 @@ DB_CONFIG = {
 }
 
 TABLE_NAME = os.getenv('TABLE_NAME')
-
-# Other configurations
-API_KEY = os.getenv('API_KEY')
-DEBUG_MODE = os.getenv('DEBUG') == 'true'  # Convert to boolean
+MIN_MAX_VIEW = os.getenv('MIN_MAX_VIEW')
