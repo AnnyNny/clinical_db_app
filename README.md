@@ -25,3 +25,16 @@
 
 Install the required Python packages:
 pip install streamlit polars pandas plotly psycopg2
+
+## Screenshots
+
+### Main Page
+![Main Page](screenshots/main_page.png)
+
+### Filter Panel
+![Filter Panel](screenshots/filter_panel1.png)
+![Filter Panel](screenshots/filter_panel2.png)
+
+### Comparison of Binned and Non-Binned Views
+![Comparison View](screenshots/binned_table_and_plot.png)
+![Comparison View](screenshots/unbinned_plot.png)
