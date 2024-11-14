@@ -128,7 +128,7 @@ def plot_result_with_binning_polars(new_df, top_n=20, max_bins=3, time_slice=Non
     mapped_descriptions_string = ' —  '.join(mapped_descriptions)
 
     chart_title = f"Top {top_n} Count groups by {mapped_descriptions_string}"
-    st.write(result)
+    st.write(result.head(top_n))
     plot_result(result, chart_title, new_column_name)
 
 

@@ -117,7 +117,7 @@ if st.button("Visualize plot"):
 
                 #print("DEBUGGIN outside of plot result with binning")
             else:
-                st.warning("<b> There is no such data. Try to change filter parameters <b>")
+                st.warning("** There is no such data. Try to change filter parameters **")
         except Exception as e:
             st.write("Query was not executed because of the error: ", e)
     else:

@@ -27,7 +27,7 @@ def execute_final_query(query, params=()):
 @cache_data
 def get_min_max_values(table_name, column_name):
     """Fetch min and max values for a filter."""
-    query = f"SELECT min_value, max_value FROM {TABLE_NAME} WHERE column_name = '{column_name}'"
+    query = f"SELECT min_value, max_value FROM matteo_tef.min_max_view WHERE column_name = '{column_name}'"
     try:
         result = execute_query(query)
         min_val, max_val = result[0]
@@ -38,7 +38,8 @@ def get_min_max_values(table_name, column_name):
 
 @cache_data
 def get_unique_values(table_name, column_name):
-    query = f"SELECT DISTINCT (LOWER({column_name})) AS event_lowcase FROM {TABLE_NAME} ORDER BY event_lowcase"
+    #query = f"SELECT DISTINCT (LOWER({column_name})) AS event_lowcase FROM {TABLE_NAME} ORDER BY event_lowcase"
+    query = f"SELECT DISTINCT {column_name} FROM {TABLE_NAME}"
     try:
         results = execute_query(query)
         unique_values = [row[0] for row in results]
