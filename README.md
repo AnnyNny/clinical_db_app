@@ -2,7 +2,7 @@
  This is my bachelor thesis app, dedicated to connecting to PostgreSQL database and visualizing trend-event pattern data, consisting of one table. It basically provides a graphical interface ad-hoc for medics to help them interrogate the specific table.
  The query is based on simple SELECT COUNT(*) FROM table WHERE params=params GROUP BY selected_filters_group_by.
  The data is converted to polars dataframe (but binning for parameters of is executed by pandas for now, since I couldn't fix the error with number of lables and bin groups) and then when users chooses the time slice they prefer
- (hour, month, year), the datetime columns are cut for the chosen option, the data is aggregated by count and sorted by count column in descending order. 
+ (hour, month, year), the datetime columns are cut for the chosen option, the data is aggregated by count and sorted by count column in descending order. It will be seen both as a table and plot view with and without binning. 
 
 ## Features
 
