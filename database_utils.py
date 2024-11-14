@@ -1,9 +1,8 @@
 # database_utils.py
 import psycopg2
-import pandas as pd
 from streamlit import cache_data
 import polars as pl
-from config import DB_CONFIG, MIN_MAX_VIEW, TABLE_NAME
+from config import DB_CONFIG, TABLE_NAME
 
 
 @cache_data
@@ -28,7 +27,7 @@ def execute_final_query(query, params=()):
 @cache_data
 def get_min_max_values(table_name, column_name):
     """Fetch min and max values for a filter."""
-    query = f"SELECT min_value, max_value FROM {MIN_MAX_VIEW} WHERE column_name = '{column_name}'"
+    query = f"SELECT min_value, max_value FROM {TABLE_NAME} WHERE column_name = '{column_name}'"
     try:
         result = execute_query(query)
         min_val, max_val = result[0]
