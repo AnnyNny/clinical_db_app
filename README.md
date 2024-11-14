@@ -7,6 +7,7 @@
 ## Features
 
 - **Interactive Filters**: Filter data based on different parameters, including time, trends, slopes, duration gaps, events, and general filters.
+- **Materialized View**: Added for smooth extracting of min, max values of the filters.
 - **Group Options**: Allows users to select how data is grouped.
 - **Top N Counts**: Allows users to choose how many most popular trends count to see.
 - **Binned vs Non-Binned Views**: Allows users to compare binned and non-binned views.
