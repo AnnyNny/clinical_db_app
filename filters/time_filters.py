@@ -1,4 +1,5 @@
 import streamlit as st
+from tornado.options import options
 
 time_constraints = [
     {"column_name": "vt_start_pre", "description": "Start of Pre-Trend", "filter_group": "time_constraints",
@@ -38,7 +39,10 @@ time_constraints = [
 ]
 
 def add_time_filters():
-
+    months = {
+        "January": 1, "February": 2, "March": 3, "April": 4, "May": 5, "June": 6,
+        "July": 7, "August": 8, "September": 9, "October": 10, "November": 11, "December": 12
+    }
     with st.sidebar.expander("Time Constraints (Hour)", expanded=False):
         for i, constraint in enumerate(time_constraints):
             if constraint["granularity"] == "hour":
@@ -58,8 +62,9 @@ def add_time_filters():
                 description = constraint['description']
                 enabled = st.checkbox(f"{description} (Month)", value=False,key=f"{constraint['column_name']}_month_checkbox_{i}")
                 if enabled:
-                    constraint["value"] = st.slider(f"Select month for {description}", min_value=1, max_value=12,
-                                                    value=5, key=f"{constraint['column_name']}_month_slider_{i}")
+                    selected_month = st.select_slider(f"Select month for {description}", options=months.keys(), key=f"{constraint['column_name']}_month_slider_{i}")
+                    constraint["value"] = months[selected_month]
+                    #st.write(f"Selected month for {description} is {selected_month} in query as {months[selected_month]}")
                 else:
                     constraint["value"] = None
 
