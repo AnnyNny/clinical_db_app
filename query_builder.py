@@ -1,4 +1,3 @@
-import streamlit as st
 from config import TABLE_NAME
 
 def build_where_clause(filters):

@@ -1,7 +1,5 @@
-# database_utils.py
 import psycopg2
 from streamlit import cache_data
-import polars as pl
 from config import DB_CONFIG, TABLE_NAME
 import pandas as pd
 import streamlit as st
@@ -33,12 +31,11 @@ def execute_final_query(query, params=()):
             column_names = [desc[0] for desc in cursor.description]
             list_of_tuples = cursor.fetchall()
             df = pd.DataFrame(list_of_tuples, columns=column_names)
-            #df = pl.DataFrame(list_of_tuples, schema=column_names)
         return df
 
 @cache_data(max_entries=5)
 def get_min_max_values(table_name, column_name):
-    """Fetch min and max values for a filter."""
+    """Get min and max values for a filter slider"""
     query = f"SELECT min_value, max_value FROM matteo_tef.min_max_view WHERE column_name = '{column_name}'"
     try:
         result = execute_query(query)
@@ -50,7 +47,7 @@ def get_min_max_values(table_name, column_name):
 
 @cache_data(max_entries=33)
 def get_unique_values(table_name, column_name):
-    #query = f"SELECT DISTINCT (LOWER({column_name})) AS event_lowcase FROM {TABLE_NAME} ORDER BY event_lowcase"
+
     query = f"SELECT DISTINCT {column_name} FROM {TABLE_NAME}"
     try:
         results = execute_query(query)
