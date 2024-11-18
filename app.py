@@ -1,4 +1,3 @@
-import re
 import time
 import streamlit as st
 from database_utils import execute_query, execute_final_query, check_db_status
@@ -9,8 +8,7 @@ from filters.duration_gap_filters import add_duration_gap_filters
 from filters.event_filters import add_event_filters
 from filters.general_filters import add_general_filters
 from query_builder import build_where_clause, build_final_query
-from vis_with_polars import plot_result_with_binning_polars, apply_binning_to_decimal_p_value_columns, \
-    plot_result_with_binning_polars_lazy
+from vis_with_polars import plot_result_with_binning_polars, apply_binning_to_decimal_p_value_columns
 from group_by_filters import group_by_filters as gr
 
 def measure_time(label, func, *args, **kwargs):
@@ -163,8 +161,6 @@ if (
                 st.divider()
                 #plot_result_with_binning_polars_lazy(unbinned_data, top_n=top_n, max_bins=max_bins, time_slice=time_slice)
 
-
-            st.divider()
         else:
             st.warning("** There is no such data. Try to change filter parameters **")
     except Exception as e:

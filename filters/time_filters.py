@@ -1,5 +1,4 @@
 import streamlit as st
-from tornado.options import options
 
 time_constraints = [
     {"column_name": "vt_start_pre", "description": "Start of Pre-Trend", "filter_group": "time_constraints",
@@ -64,7 +63,7 @@ def add_time_filters():
                 if enabled:
                     selected_month = st.select_slider(f"Select month for {description}", options=months.keys(), key=f"{constraint['column_name']}_month_slider_{i}")
                     constraint["value"] = months[selected_month]
-                    #st.write(f"Selected month for {description} is {selected_month} in query as {months[selected_month]}")
+
                 else:
                     constraint["value"] = None
 
@@ -75,8 +74,8 @@ def add_time_filters():
                 description = constraint['description']
                 enabled = st.checkbox(f"{description} (Year)", value=False,key=f"{constraint['column_name']}_year_checkbox_{i}")
                 if enabled:
-                    constraint["value"] = st.slider(f"Select year for {description}", min_value=1900, max_value=2200,
-                                                    value=2021, key=f"{constraint['column_name']}_year_slider_{i}")
+                    constraint["value"] = st.slider(f"Select year for {description}", min_value=2110, max_value=2211,
+                                                    value=2110, key=f"{constraint['column_name']}_year_slider_{i}")
                 else:
                     constraint["value"] = None
 
