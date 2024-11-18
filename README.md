@@ -28,9 +28,6 @@ pip install streamlit polars pandas plotly psycopg2
 
 ## Screenshots
 
-# Use Case diagram
-![Main Page](screenshots/use_case.png)
-
 ### Main Page
 ![Main Page](screenshots/main_page.png)
 
@@ -41,3 +38,8 @@ pip install streamlit polars pandas plotly psycopg2
 ### Comparison of Binned and Non-Binned Views
 ![Comparison View](screenshots/binned_table_and_plot.png)
 ![Comparison View](screenshots/unbinned_plot.png)
+
+### Sequence Diagram
+![Main Page](screenshots/sequence_diagram.png)
+### Use Case Diagram
+![Main Page](screenshots/use_case.png)
