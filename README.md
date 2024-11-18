@@ -40,6 +40,6 @@ pip install streamlit polars pandas plotly psycopg2
 ![Comparison View](screenshots/unbinned_plot.png)
 
 ### Sequence Diagram
-![Main Page](screenshots/sequence_diagram.png)
+![Sequence Diagram](screenshots/sequence_diagram.png)
 ### Use Case Diagram
-![Main Page](screenshots/use_case.png)
+![USe Case Diagram](screenshots/use_case.png)
