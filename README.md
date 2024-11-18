@@ -28,6 +28,9 @@ pip install streamlit polars pandas plotly psycopg2
 
 ## Screenshots
 
+# Use Case diagram
+![Main Page](screenshots/use_case.png)
+
 ### Main Page
 ![Main Page](screenshots/main_page.png)
 
