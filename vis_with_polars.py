@@ -90,14 +90,6 @@ def plot_result_with_binning_polars(new_df, top_n=20, max_bins=3, time_slice=Non
             pass
 
     group_columns = [col for col in new_df.columns if col != "count"]
-    if not group_columns:
-        st.warning("Please select at least one column to group by before visualizing plot.")
-        return
-
-    new_df = new_df.group_by(group_columns).agg([
-        pl.col("count").sum().alias("count"),
-    ]).sort("count", descending=True)
-
 
     sorted_group_columns = sort_items(group_columns)
 
@@ -109,9 +101,10 @@ def plot_result_with_binning_polars(new_df, top_n=20, max_bins=3, time_slice=Non
     grouped_columns_as_str = [expr.meta.output_name() for expr in grouped_columns]
     new_column_name = " — ".join(grouped_columns_as_str)
 
+
     result = result.with_columns(
         pl.concat_str(grouped_columns_as_str, separator="— ").alias(new_column_name)
-    ).sort("count", descending=True)
+    ).top_k(top_n, by=[pl.col(col) for col in sorted_group_columns]).sort(sorted_group_columns, descending=True)
 
     mapped_descriptions = [filter_map.get(col, col) for col in grouped_columns_as_str]
     mapped_descriptions_string = ' —  '.join(mapped_descriptions)
