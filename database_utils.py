@@ -15,7 +15,7 @@ def check_db_status():
     except Exception as e:
         st.error(f"Failed to connect to database: {e}")
 
-@cache_data(max_entries=20)
+
 def execute_query(query, params=()):
     with get_db_connection() as conn:
         cursor = conn.cursor()
