@@ -8,7 +8,7 @@ from filters.duration_gap_filters import add_duration_gap_filters
 from filters.event_filters import add_event_filters
 from filters.general_filters import add_general_filters
 from query_builder import build_where_clause, build_final_query
-from vis_with_polars import plot_result_with_binning_polars, apply_binning_to_decimal_p_value_columns
+from vis_with_polars import plot_result_polars, apply_binning_to_decimal
 from group_by_filters import group_by_filters as gr
 
 
@@ -103,17 +103,17 @@ def update_progress_bar(my_bar, message="updating progess..."):
         my_bar.progress(percent_complete + 1, text=message)
 
 
-def visualize_data(data, binned_data, max_bins, top_n, time_slice):
+def visualize_data(data, binned_data, top_n, time_slice):
     toggle_label = "View Non-Binned Data" if st.session_state.show_binned else "View Binned Data"
     if st.button(toggle_label):
         st.session_state.show_binned = not st.session_state.show_binned
 
     if st.session_state.show_binned:
         st.subheader("Binned Data View")
-        plot_result_with_binning_polars(binned_data, top_n=top_n, max_bins=max_bins, time_slice=time_slice)
+        plot_result_polars(binned_data, top_n=top_n, time_slice=time_slice)
     else:
         st.subheader("Non-Binned Data View")
-        plot_result_with_binning_polars(data, top_n=top_n, max_bins=max_bins, time_slice=time_slice)
+        plot_result_polars(data, top_n=top_n, time_slice=time_slice)
 
 
 def main():
@@ -153,15 +153,15 @@ def main():
 
             # Process data for visualization
             unbinned_data = data.copy()
-            binned_data = apply_binning_to_decimal_p_value_columns(data, max_bins)
+            binned_data = apply_binning_to_decimal(data, max_bins)
             st.sidebar.write("Column Cardinality:")
             cardinality = {col: data[col].nunique() for col in data.columns}
             for col, unique_values in cardinality.items():
                 st.sidebar.write(f"{col}: {unique_values} unique values")
 
-            # Display appropriate view
+            # Display binned/non-binned view
             update_progress_bar(my_bar, "Rendering visualization...")
-            visualize_data(unbinned_data, binned_data, max_bins, top_n, time_slice)
+            visualize_data(unbinned_data, binned_data, top_n, time_slice)
         except Exception as e:
             st.error(f"Query execution failed: {e}")
 
