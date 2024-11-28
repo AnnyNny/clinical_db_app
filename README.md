@@ -16,6 +16,7 @@
 
 ## Setup Instructions
 - Type in the terminal streamlit run app.py and it will open a local browser connection.
+- in the file .env you need to insert your own database connection variables.
 
 ### Prerequisites
 
