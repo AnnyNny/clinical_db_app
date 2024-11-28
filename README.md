@@ -24,8 +24,9 @@
 ### Dependencies
 
 Install the required Python packages:
-pip install streamlit polars pandas plotly psycopg2-binary
-pip install streamlit-sortables
+- pip install streamlit polars pandas plotly psycopg2-binary
+
+- pip install streamlit-sortables
 
 ## Screenshots
 
