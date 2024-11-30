@@ -17,6 +17,7 @@ RUN python -m venv /app/venv
 # Activate the virtual environment and install dependencies
 # Note: Use the full path to the venv `pip` to ensure it installs within the venv
 COPY requirements.txt .
+RUN pip install streamlit
 RUN /app/venv/bin/pip --version
 RUN /app/venv/bin/pip install --no-cache-dir -r requirements.txt
 
