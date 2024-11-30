@@ -1,0 +1,32 @@
+version: "3.9"
+services:
+  db:
+    image: postgres:latest
+    container_name: clinical-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 2018
+      POSTGRES_DB: clinical_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data  # Persist data
+
+  app:
+    build:
+      context: .
+    container_name: streamlit-app
+    ports:
+      - "8501:8501"
+    environment:
+      DB_HOST: host.docker.internal
+      DB_PORT: 5432
+      DB_NAME: clinical_db
+      DB_USER: postgres
+      DB_PASSWORD: 2018
+    depends_on:
+      - db
+    command: ["streamlit", "run", "app.py", "--server.port=8501", "--server.address=0.0.0.0"]
+
+volumes:
+  pgdata:
