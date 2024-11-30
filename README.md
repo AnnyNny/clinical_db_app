@@ -19,14 +19,16 @@
 - in the file .env you need to insert your own database connection variables.
 
 ### Prerequisites
-
+for installing on Windows
 - **Python 3.12**
 - **PostgreSQL** 17 https://www.postgresql.org/download/
+- **Docker Desktop** https://docs.docker.com/desktop/setup/install/windows-install/
 
 ### Dependencies
+1) Navigate to project folder in terminal
+2) docker-compose up --build
+3) http://localhost:8501
 
-Install the required packages:
-- pip install -r requirements.txt -v
 
 ## Screenshots
 
