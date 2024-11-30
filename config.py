@@ -9,7 +9,8 @@ DB_CONFIG = {
     'host': os.getenv('DB_HOST'),
     'user': os.getenv('DB_USER'),
     'password': os.getenv('DB_PASSWORD'),
-    'dbname': os.getenv('DB_NAME')
+    'dbname': os.getenv('DB_NAME'),
+	'port':os.getenv('DB_PORT')
 }
 
 TABLE_NAME = os.getenv('TABLE_NAME')
