@@ -198,15 +198,14 @@ def main():
     st.write("Top Events:", top_n)
 
 
-    my_bar = st.progress(0, text="Executing query and plotting may take 2-3 minutes.")
+    #my_bar = st.progress(0, text="Executing query and plotting may take 2-3 minutes.")
     st.session_state.setdefault("visualize_clicked", False)
-    #st.session_state.setdefault("show_binned", True)
+    st.session_state.setdefault("show_binned", False)
 
 
     # Visualization button logic
     if st.button("Visualize plot") or st.session_state.visualize_clicked:
         st.session_state.visualize_clicked = True
-
 
         # Build and execute the query
         final_query = build_final_query(where_query, selected_group_columns)
