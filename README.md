@@ -20,14 +20,13 @@
 
 ### Prerequisites
 
-- **Python 3.7+**
+- **Python 3.12**
+- **PostgreSQL** 17 https://www.postgresql.org/download/
 
 ### Dependencies
 
-Install the required Python packages:
-- pip install streamlit polars pandas plotly psycopg2-binary
-
-- pip install streamlit-sortables
+Install the required packages:
+- pip install -r requirements.txt -v
 
 ## Screenshots
 
