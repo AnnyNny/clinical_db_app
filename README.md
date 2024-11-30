@@ -15,8 +15,7 @@
 - **Visualizations**: Uses Plotly to display data with bar plots.
 
 ## Setup Instructions
-- Type in the terminal streamlit run app.py and it will open a local browser connection.
-- in the file .env you need to insert your own database connection variables.
+- in the file docker-compose.yml you need to insert your own database connection variables.
 
 ### Prerequisites
 for installing on Windows
