@@ -123,8 +123,6 @@ def plot_unbinned(df):
         plot_result(result, chart_title, new_column_name)
 
 
-
-
 def sort_by_trend_count(df):
     """
         Groups data by all columns except 'count', aggregates by count, and
