@@ -27,4 +27,4 @@ COPY . .
 EXPOSE 8501
 
 # Define the default command
-CMD ["/app/venv/bin/python", "app.py"]
+CMD ["streamlit", "run", "app.py", "--server.port=8501", "--server.address=0.0.0.0"]
