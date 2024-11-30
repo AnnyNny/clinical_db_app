@@ -1,5 +1,6 @@
 streamlit~=1.39.0
-psycopg2-binary~=2.9.10
+psycopg2
+#psycopg2-binary
 python-dotenv~=1.0.1
 
 polars~=1.12.0
@@ -7,4 +8,3 @@ pandas~=2.2.3
 plotly~=5.24.1
 
 streamlit-sortables
-

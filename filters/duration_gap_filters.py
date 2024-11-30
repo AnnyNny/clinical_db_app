@@ -68,14 +68,14 @@ def add_duration_gap_filters():
 
     with st.sidebar.expander("Duration and Gaps", expanded=False):
         for i, constraint in enumerate(duration_constraints):
-            enabled = st.checkbox(f" {constraint["description"]}", value=False, key=f"{constraint['column_name']}_checkbox_{i}")
+            enabled = st.checkbox(f"{constraint['description']}", value=False, key=f"{constraint['column_name']}_checkbox_{i}")
             min_val, max_val = get_min_max_values(TABLE_NAME, constraint["column_name"])
             if min_val is not None and max_val is not None:
                 constraint["min_value"] = min_val
                 constraint["max_value"] = max_val
                 if min_val == max_val:
                     if enabled:
-                        st.write(f"{constraint["description"]} has a fixed value of {min_val}. No range available.")
+                        st.write(f"{constraint['description']} has a fixed value of {min_val}. No range available.")
 
                 default_range = (int(min_val), int(max_val))
                 if enabled:
