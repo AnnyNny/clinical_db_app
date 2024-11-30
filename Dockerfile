@@ -1,31 +1,21 @@
-# Use a lightweight Python image
-FROM python:3.11-slim
+# Use an official Python runtime as a parent image
+FROM python:3.12-slim
 
-# Set the working directory
+# Set the working directory inside the container
 WORKDIR /app
 
-# Install system-level dependencies
-RUN apt-get update && apt-get install -y \
-    build-essential \
-    libpq-dev \
-    gcc \
-    && rm -rf /var/lib/apt/lists/*
+# Copy requirements.txt into the container
+COPY requirements.txt /app/
 
-# Create a virtual environment
-RUN python -m venv /app/venv
+# Install dependencies from requirements.txt
+RUN apt-get update && apt-get install -y postgresql-client \
+    && pip install --no-cache-dir -r requirements.txt && pip list
 
-# Activate the virtual environment and install dependencies
-# Note: Use the full path to the venv `pip` to ensure it installs within the venv
-COPY requirements.txt .
-RUN pip install streamlit
-RUN /app/venv/bin/pip --version
-RUN /app/venv/bin/pip install --no-cache-dir -r requirements.txt
+# Copy the rest of the application code into the container
+COPY . /app/
 
-# Copy the rest of the application code
-COPY . .
-
-# Expose the port (if using a web app like Flask/Streamlit)
+# Expose the port Streamlit will run on
 EXPOSE 8501
 
-# Define the default command
+# Command to run the application
 CMD ["streamlit", "run", "app.py", "--server.port=8501", "--server.address=0.0.0.0"]
