@@ -65,10 +65,10 @@ from config import DB_CONFIG, TABLE_NAME
 import pandas as pd
 import streamlit as st
 
-# Initialize connection pool
+
 POOL = SimpleConnectionPool(
     minconn=1,
-    maxconn=10,  # Adjust based on expected concurrency
+    maxconn=10,  
     **DB_CONFIG
 )
 
