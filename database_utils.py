@@ -68,8 +68,7 @@ import streamlit as st
 
 POOL = SimpleConnectionPool(
     minconn=1,
-    maxconn=10,  
-    **DB_CONFIG
+    maxconn=10,      **DB_CONFIG
 )
 
 
