@@ -26,7 +26,7 @@ services:
       DB_PASSWORD: 2018
     depends_on:
       - db
-    command: ["streamlit", "run", "app.py", "--server.port=8501", "--server.address=0.0.0.0"]
+    command: ["streamlit", "run", "app.py", "--server.port=8501", "--server.address=127.0.0.1"]
 
 volumes:
   pgdata:
