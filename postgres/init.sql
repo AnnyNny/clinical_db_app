@@ -1,1 +1,1 @@
-"""here is supposed to be a create and insert into table 11"""
+"""substitute with real tep_divided_results_202410311252.sql"""
